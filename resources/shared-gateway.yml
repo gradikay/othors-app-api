@@ -26,4 +26,4 @@ Outputs:
     Value:
       Ref: MyWebsocketApi
     Export:
-      Name: MyApiGateway-websocketApiId
+      Name: ${opt:stage, 'dev'}-MyApiGateway-websocketApiId

@@ -34,7 +34,7 @@ provider:
     restApiRootResourceId:
       "Fn::ImportValue": SharedGW-rootResourceId
     websocketApiId:
-      'Fn::ImportValue': MyApiGateway-websocketApiId
+      'Fn::ImportValue': ${opt:stage, 'dev'}-MyApiGateway-websocketApiId
   # Set the .env variables for dynamodb
   environment:
     tableName: ${self:custom.tableName}

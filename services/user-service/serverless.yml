@@ -34,7 +34,7 @@ provider:
     restApiRootResourceId:
       "Fn::ImportValue": SharedGW-rootResourceId
     websocketApiId:
-      'Fn::ImportValue': MyApiGateway-websocketApiId
+      'Fn::ImportValue': ${opt:stage, 'dev'}-MyApiGateway-websocketApiId
 
   environment:
     tableName: ${self:custom.tableName}
