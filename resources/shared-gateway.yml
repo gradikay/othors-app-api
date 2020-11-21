@@ -1,0 +1,29 @@
+Resources:
+  SharedGW:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SharedGW
+  MyWebsocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: MyWebsocketApi
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: '$request.body.action'
+Outputs:
+  apiGatewayRestApiId:
+    Value:
+      Ref: SharedGW
+    Export:
+      Name: SharedGW-restApiId
+  apiGatewayRestApiRootResourceId:
+    Value:
+      Fn::GetAtt:
+        - SharedGW
+        - RootResourceId
+    Export:
+      Name: SharedGW-rootResourceId
+  websocketApiId:
+    Value:
+      Ref: MyWebsocketApi
+    Export:
+      Name: MyApiGateway-websocketApiId

@@ -1,0 +1,18 @@
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+
+# env
+env.yml
+.env
+
+# visual studio
+.vs
+
+# Runtime data
+pids
+*.pid
+*.seed

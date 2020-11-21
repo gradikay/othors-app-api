@@ -1,0 +1,74 @@
+service: product-service
+# app and org for use with dashboard.serverless.com
+app: notes-app-api-app
+org: gradikayamba
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: '1.0.0'
+# Create an optimized package for our functions 
+#package:
+#individually: true
+
+plugins:
+  - serverless-bundle # Package our functions with Webpack
+  - serverless-offline
+  - serverless-dotenv-plugin # Load .env as environment variables
+
+custom:
+  # Our stage is based on what is passed in when running serverless
+  # commands. Or fallsback to what we have set in the provider section.
+  stage: ${opt:stage, self:provider.stage}
+  # Set the table name here so we can use it while testing locally
+  tableName: ${self:custom.stage}-testing1-product
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  # Set the shared apiGateway for the id and the resource id
+  apiGateway:
+    restApiId:
+      "Fn::ImportValue": SharedGW-restApiId
+    restApiRootResourceId:
+      "Fn::ImportValue": SharedGW-rootResourceId
+    websocketApiId:
+      'Fn::ImportValue': MyApiGateway-websocketApiId
+  # Set the .env variables for dynamodb
+  environment:
+    tableName: ${self:custom.tableName}
+  # Set IAm permissions to read table
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [ ProductTable, Arn ]
+        - "Fn::Join": ["/", [{ "Fn::GetAtt": ["ProductTable", "Arn"] }, "index", "*"]]
+
+functions:
+  productCreate:
+    handler: productCreate.main
+    events:
+      - http:
+          path: product/post
+          method: post
+
+# Create our resources with separate CloudFormation templates
+resources:
+  # API Gateway Errors
+  #- ${file(../../resources/api-gateway-errors.yml)}
+  # DynamoDB
+  - ${file(../../resources/dynamodb-product-table.yml)}
+  # S3
+  #- ${file(resources/s3-bucket.yml)}
+  # Cognito
+  #- ${file(resources/cognito-user-pool.yml)}
+  #- ${file(resources/cognito-identity-pool.yml)}

@@ -1,0 +1,72 @@
+service: user-service
+# app and org for use with dashboard.serverless.com
+app: notes-app-api-app
+org: gradikayamba
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+#frameworkVersion: '1.0.0'
+# Create an optimized package for our functions 
+#package:
+# individually: true
+
+plugins:
+  - serverless-bundle # Package our functions with Webpack
+  - serverless-offline
+  - serverless-dotenv-plugin # Load .env as environment variables
+
+custom:
+  # Our stage is based on what is passed in when running serverless
+  # commands. Or fallsback to what we have set in the provider section.
+  stage: ${opt:stage, self:provider.stage}
+  # Set the table name here so we can use it while testing locally
+  tableName: ${self:custom.stage}-testing1-user
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  # when passing the stage bellow it changes our custom.stage above
+  stage: dev
+  region: us-east-1
+  apiGateway:
+    restApiId:
+      "Fn::ImportValue": SharedGW-restApiId
+    restApiRootResourceId:
+      "Fn::ImportValue": SharedGW-rootResourceId
+    websocketApiId:
+      'Fn::ImportValue': MyApiGateway-websocketApiId
+
+  environment:
+    tableName: ${self:custom.tableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - s3:*
+      Resource:
+        - "Fn::GetAtt": [ UserTable, Arn ]
+        - "Fn::Join": ["/", [{ "Fn::GetAtt": ["UserTable", "Arn"] }, "index", "*"]]
+
+functions:
+  userCreate:
+    handler: userCreate.main
+    events:
+      - http:
+          path: user/post
+          method: post
+
+# Create our resources with separate CloudFormation templates
+resources:
+  # DynamoDB
+  - ${file(../../resources/dynamodb-user-table.yml)}
+  # S3
+  #- ${file(../../resources/s3-bucket.yml)}
+  # Cognito
+  #- ${file(../../resources/cognito-user-pool.yml)}
+  #- ${file(../../resources/cognito-identity-pool.yml)}
