@@ -30,9 +30,9 @@ provider:
   # Set the shared apiGateway for the id and the resource id
   apiGateway:
     restApiId:
-      "Fn::ImportValue": SharedGW-restApiId
+      "Fn::ImportValue": ${opt:stage, 'dev'}-SharedGW-restApiId
     restApiRootResourceId:
-      "Fn::ImportValue": SharedGW-rootResourceId
+      "Fn::ImportValue": ${opt:stage, 'dev'}-SharedGW-rootResourceId
     websocketApiId:
       'Fn::ImportValue': ${opt:stage, 'dev'}-MyApiGateway-websocketApiId
   # Set the .env variables for dynamodb

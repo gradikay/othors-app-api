@@ -14,14 +14,14 @@ Outputs:
     Value:
       Ref: SharedGW
     Export:
-      Name: SharedGW-restApiId
+      Name: ${opt:stage, 'dev'}-SharedGW-restApiId
   apiGatewayRestApiRootResourceId:
     Value:
       Fn::GetAtt:
         - SharedGW
         - RootResourceId
     Export:
-      Name: SharedGW-rootResourceId
+      Name: ${opt:stage, 'dev'}-SharedGW-rootResourceId
   websocketApiId:
     Value:
       Ref: MyWebsocketApi
